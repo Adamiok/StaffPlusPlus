@@ -202,7 +202,7 @@ public class GadgetHandler {
             return;
         }
 
-        targetPlayer.setPassenger(player);
+        targetPlayer.addPassenger(player);
     }
 
     public void executeModule(Player player, Player targetPlayer, CustomModuleConfiguration customModuleConfiguration, Map<String, String> placeholders) {

@@ -17,6 +17,8 @@ import net.shortninja.staffplusplus.session.SppPlayer;
 import org.bukkit.BanEntry;
 import org.bukkit.BanList;
 import org.bukkit.Bukkit;
+import org.bukkit.profile.PlayerProfile;
+import org.bukkit.ban.ProfileBanList;
 import org.bukkit.command.CommandSender;
 
 import java.util.Map;
@@ -52,25 +54,25 @@ public class MigrateBansCmd extends AbstractCmd {
 
     @Override
     protected boolean executeCmd(CommandSender sender, String alias, String[] args, SppPlayer player, Map<String, String> optionalParameters) {
-        BanList banList = Bukkit.getBanList(BanList.Type.NAME);
+        ProfileBanList banList = (ProfileBanList) Bukkit.getBanList(BanList.Type.PROFILE);
 
-        Set<BanEntry> banEntries = banList.getBanEntries();
+        Set<BanEntry<PlayerProfile>> banEntries = banList.getEntries();
         bukkitUtils.runTaskAsync(sender, () -> {
             AtomicInteger count = new AtomicInteger();
-            for (BanEntry banEntry : banEntries) {
+            for (BanEntry<PlayerProfile> banEntry : banEntries) {
                 Long endDate = banEntry.getExpiration() == null ? null : banEntry.getExpiration().getTime();
 
-                Optional<SppPlayer> onOrOfflinePlayer = playerManager.getOnOrOfflinePlayer(banEntry.getTarget());
+                Optional<SppPlayer> onOrOfflinePlayer = playerManager.getOnOrOfflinePlayer(banEntry.getBanTarget().getName());
                 onOrOfflinePlayer.ifPresent(p -> {
-                    Ban ban = new Ban(banEntry.getReason(), banEntry.getCreated().getTime(), endDate, "Console", Constants.CONSOLE_UUID, banEntry.getTarget(), p.getId(), false, null);
+                    Ban ban = new Ban(banEntry.getReason(), banEntry.getCreated().getTime(), endDate, "Console", Constants.CONSOLE_UUID, p.getUsername(), p.getId(), false, null);
                     bansRepository.addBan(ban);
                     count.getAndIncrement();
                 });
             }
 
             bukkitUtils.runTaskLater(() -> {
-                for (BanEntry banEntry : banEntries) {
-                    banList.pardon(banEntry.getTarget());
+                for (BanEntry<PlayerProfile> banEntry : banEntries) {
+                    banList.pardon(banEntry.getBanTarget());
                 }
             });
 

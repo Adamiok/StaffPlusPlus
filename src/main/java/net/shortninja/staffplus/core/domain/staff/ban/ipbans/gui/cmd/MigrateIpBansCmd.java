@@ -17,8 +17,10 @@ import net.shortninja.staffplusplus.session.SppPlayer;
 import org.bukkit.BanEntry;
 import org.bukkit.BanList;
 import org.bukkit.Bukkit;
+import org.bukkit.ban.IpBanList;
 import org.bukkit.command.CommandSender;
 
+import java.net.InetAddress;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -54,21 +56,21 @@ public class MigrateIpBansCmd extends AbstractCmd {
 
     @Override
     protected boolean executeCmd(CommandSender sender, String alias, String[] args, SppPlayer player, Map<String, String> optionalParameters) {
-        BanList banList = Bukkit.getBanList(BanList.Type.IP);
+        IpBanList banList = (IpBanList) Bukkit.getBanList(BanList.Type.IP);
 
-        Set<BanEntry> banEntries = banList.getBanEntries();
+        Set<BanEntry<InetAddress>> banEntries = banList.getEntries();
         bukkitUtils.runTaskAsync(sender, () -> {
             AtomicInteger count = new AtomicInteger();
-            for (BanEntry banEntry : banEntries) {
+            for (BanEntry<InetAddress> banEntry : banEntries) {
                 Long endDate = banEntry.getExpiration() == null ? null : banEntry.getExpiration().getTime();
-                IpBan ban = new IpBan(banEntry.getTarget(), banEntry.getCreated().getTime(), endDate, "Console", Constants.CONSOLE_UUID, options.serverName, false, null);
+                IpBan ban = new IpBan(banEntry.getBanTarget().getHostAddress(), banEntry.getCreated().getTime(), endDate, "Console", Constants.CONSOLE_UUID, options.serverName, false, null);
                 bansRepository.saveBan(ban);
                 count.getAndIncrement();
             }
 
             bukkitUtils.runTaskLater(() -> {
-                for (BanEntry banEntry : banEntries) {
-                    banList.pardon(banEntry.getTarget());
+                for (BanEntry<InetAddress> banEntry : banEntries) {
+                    banList.pardon(banEntry.getBanTarget());
                 }
             });
 

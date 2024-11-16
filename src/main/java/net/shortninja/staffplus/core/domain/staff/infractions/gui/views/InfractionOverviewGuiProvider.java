@@ -24,7 +24,7 @@ public class InfractionOverviewGuiProvider {
         lore.add("");
         lore.addAll(infractionOverview.getAdditionalInfo());
 
-        ItemStack item = Items.editor(Items.createSkull(infractionOverview.getSppPlayer().getUsername())).setAmount(1)
+        ItemStack item = Items.editor(Items.createSkull(infractionOverview.getSppPlayer().getOfflinePlayer())).setAmount(1)
             .setName(infractionOverview.getSppPlayer().getUsername())
             .addLore(lore)
             .build();

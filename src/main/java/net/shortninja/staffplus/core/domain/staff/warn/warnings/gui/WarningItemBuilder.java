@@ -15,6 +15,7 @@ import net.shortninja.staffplus.core.domain.staff.warn.warnings.config.WarningCo
 import net.shortninja.staffplus.core.domain.staff.warn.warnings.config.WarningSeverityConfiguration;
 import net.shortninja.staffplusplus.appeals.AppealStatus;
 import net.shortninja.staffplusplus.appeals.IAppeal;
+import org.bukkit.Bukkit;
 import org.bukkit.inventory.ItemStack;
 
 import java.time.LocalDateTime;
@@ -67,7 +68,7 @@ public class WarningItemBuilder implements InfractionGuiProvider<Warning> {
             addExpiresAt(warning, loreBuilder);
         }
 
-        ItemStack item = Items.editor(Items.createSkull(warning.getTargetName())).setAmount(1)
+        ItemStack item = Items.editor(Items.createSkull(Bukkit.getOfflinePlayer(warning.getTargetUuid()))).setAmount(1)
             .setName("&6Warning")
             .setLore(loreBuilder.build())
             .build();

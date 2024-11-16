@@ -2,6 +2,7 @@ package net.shortninja.staffplus.core.domain.staff.vanish;
 
 import be.garagepoort.mcioc.IocBean;
 import be.garagepoort.mcioc.IocMultiProvider;
+import net.shortninja.staffplus.core.StaffPlusPlus;
 import net.shortninja.staffplus.core.application.session.OnlineSessionsManager;
 import net.shortninja.staffplus.core.common.IProtocolService;
 import net.shortninja.staffplus.core.common.permissions.PermissionHandler;
@@ -39,7 +40,7 @@ public class PlayerVanishStrategy implements VanishStrategy {
     public void vanish(SppPlayer player) {
         Bukkit.getOnlinePlayers().stream()
             .filter(p -> !permission.has(p, vanishConfiguration.permissionSeeVanished))
-            .forEach(p -> p.hidePlayer(player.getPlayer()));
+            .forEach(p -> p.hidePlayer(StaffPlusPlus.get(), player.getPlayer()));
 
         protocolService.getVersionProtocol().listVanish(player.getPlayer(), false);
         
@@ -55,7 +56,7 @@ public class PlayerVanishStrategy implements VanishStrategy {
 
     @Override
     public void unvanish(SppPlayer player) {
-        Bukkit.getOnlinePlayers().forEach(p -> p.showPlayer(player.getPlayer()));
+        Bukkit.getOnlinePlayers().forEach(p -> p.showPlayer(StaffPlusPlus.get(), player.getPlayer()));
     }
 
     @Override
@@ -67,7 +68,7 @@ public class PlayerVanishStrategy implements VanishStrategy {
                 .flatMap(optional -> optional.map(Stream::of).orElseGet(Stream::empty))
                 .map(SppPlayer::getPlayer)
                 .forEach(p -> {
-                    player.getPlayer().hidePlayer(p.getPlayer());
+                    player.getPlayer().hidePlayer(StaffPlusPlus.get(), p.getPlayer());
                     protocolService.getVersionProtocol().listVanish(p.getPlayer(), false);
                 });
         }

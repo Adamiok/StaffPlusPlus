@@ -90,14 +90,14 @@ public class Options {
         return string.toUpperCase();
     }
 
-    public static short getMaterialData(String string) {
-        short data = 0;
+    public static int getMaterialDurability(String string) {
+        int data = 0;
 
         if (string.contains(":")) {
             String dataString = string.substring(string.lastIndexOf(':') + 1);
 
             if (JavaUtils.isInteger(dataString)) {
-                data = (short) Integer.parseInt(dataString);
+                data = Integer.parseInt(dataString);
             } else
                 Bukkit.getLogger().severe("Invalid material data '" + dataString + "' from '" + string + "'!");
         }

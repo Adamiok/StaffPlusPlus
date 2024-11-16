@@ -1,20 +1,29 @@
 package net.shortninja.staffplus.core.common;
 
 import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+
+import java.lang.RuntimeException;
 
 /**
  * @author MrBlobman, Shortninja
  */
 
-@SuppressWarnings("unused")
 public class Sounds {
 
     private Sound resolvedSound = null;
 
     public Sounds(String sound) {
-        resolvedSound = Sound.valueOf(sound);
+        NamespacedKey key = NamespacedKey.fromString(sound.toLowerCase());
+        if (key != null) {
+            resolvedSound = Registry.SOUNDS.get(key);
+            return;
+        }
+        
+        throw new RuntimeException("Unable to find sound '" + sound + "', perhaps you forgot a namespace?");
     }
 
     public Sounds(Sound sound) {

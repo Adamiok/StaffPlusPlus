@@ -1,12 +1,10 @@
 package net.shortninja.staffplus.core.common.utils;
 
 import be.garagepoort.mcioc.IocBean;
-import de.tr7zw.changeme.nbtapi.NBTCompound;
-import de.tr7zw.changeme.nbtapi.NBTCompoundList;
-import de.tr7zw.changeme.nbtapi.NBTContainer;
-import de.tr7zw.changeme.nbtapi.NBTFile;
-import de.tr7zw.changeme.nbtapi.NBTItem;
+import de.tr7zw.changeme.nbtapi.NBT;
+import de.tr7zw.changeme.nbtapi.iface.NBTFileHandle;
 import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBT;
+import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBTCompoundList;
 import net.shortninja.staffplus.core.application.config.Options;
 import net.shortninja.staffplusplus.session.SppPlayer;
 import org.bukkit.Bukkit;
@@ -21,8 +19,8 @@ import java.io.IOException;
 
 @IocBean
 public final class InventoryFactory {
-
     private final Options options;
+    
     public InventoryFactory(Options options) {
         this.options = options;
     }
@@ -31,14 +29,15 @@ public final class InventoryFactory {
         try {
             String filename = Bukkit.getWorldContainer() + File.separator + options.mainWorld + File.separator + "playerdata" + File.separator + target.getId() + ".dat";
             Inventory inventory = Bukkit.createInventory(player, InventoryType.ENDER_CHEST);
-            NBTFile file = new NBTFile(new File(filename));
-            NBTCompoundList enderItems = file.getCompoundList("EnderItems");
+            NBTFileHandle file = NBT.getFileHandle(new File(filename));
+            ReadWriteNBTCompoundList enderItems = file.getCompoundList("EnderItems");
+            
             for (ReadWriteNBT enderItem : enderItems) {
-                ItemStack itemStack = NBTItem.convertNBTtoItem((NBTCompound) enderItem);
+                ItemStack itemStack = NBT.itemStackFromNBT(enderItem);
                 inventory.setItem(Byte.toUnsignedInt(enderItem.getByte("Slot")), itemStack);
             }
+            
             return inventory;
-
         } catch (IOException e) {
             throw new RuntimeException("Player data file could not be loaded", e);
         }
@@ -47,21 +46,21 @@ public final class InventoryFactory {
     public void saveEnderchestOffline(SppPlayer target, Inventory inventory) {
         try {
             String filename = Bukkit.getWorldContainer() + File.separator + options.mainWorld + File.separator + "playerdata" + File.separator + target.getId() + ".dat";
-            NBTFile file = new NBTFile(new File(filename));
-            NBTCompoundList enderItems = file.getCompoundList("EnderItems");
+            NBTFileHandle file = NBT.getFileHandle(new File(filename));
+            ReadWriteNBTCompoundList enderItems = file.getCompoundList("EnderItems");
             enderItems.clear();
 
             for (int i = 0; i < inventory.getContents().length; i++) {
                 ItemStack item = inventory.getContents()[i];
                 if (item == null || item.getType() == Material.AIR) continue;
 
-                NBTContainer nbtContainer = NBTItem.convertItemtoNBT(item);
-                nbtContainer.setByte("Slot", new Integer(i).byteValue());
-                enderItems.addCompound(nbtContainer);
+                ReadWriteNBT itemNbt = NBT.itemStackToNBT(item);
+                itemNbt.setByte("Slot", Integer.valueOf(i).byteValue());
+                enderItems.addCompound(itemNbt);
             }
             file.save();
         } catch (IOException e) {
-            throw new RuntimeException("Player data file could not be loaded", e);
+            throw new RuntimeException("Player data file could not be saved", e);
         }
     }
 
@@ -69,28 +68,34 @@ public final class InventoryFactory {
         try {
             String filename = Bukkit.getWorldContainer() + File.separator + options.mainWorld + File.separator + "playerdata" + File.separator + target.getId() + ".dat";
             Inventory inventory = Bukkit.createInventory(player, InventoryType.PLAYER);
-            NBTFile file = new NBTFile(new File(filename));
-            NBTCompoundList inventoryItems = file.getCompoundList("Inventory");
+            NBTFileHandle file = NBT.getFileHandle(new File(filename));
+            ReadWriteNBTCompoundList inventoryItems = file.getCompoundList("Inventory");
+            
             for (ReadWriteNBT item : inventoryItems) {
-                ItemStack itemStack = NBTItem.convertNBTtoItem((NBTCompound) item);
+                ItemStack itemStack = NBT.itemStackFromNBT(item);
                 int slot = Byte.toUnsignedInt(item.getByte("Slot"));
+                
                 if (slot <= 35 && slot >= 0) {
                     inventory.setItem(slot, itemStack);
                 } else {
-                    if (slot == 100) {
-                        inventory.setItem(36, itemStack);
-                    }
-                    if (slot == 101) {
-                        inventory.setItem(37, itemStack);
-                    }
-                    if (slot == 102) {
-                        inventory.setItem(38, itemStack);
-                    }
-                    if (slot == 103) {
-                        inventory.setItem(39, itemStack);
-                    }
-                    if (slot == -106) {
-                        inventory.setItem(40, itemStack);
+                    switch (slot) {
+                        case 100:
+                            inventory.setItem(36, itemStack);
+                            break;
+                        case 101:
+                            inventory.setItem(37, itemStack);
+                            break;
+                        case 102:
+                            inventory.setItem(38, itemStack);
+                            break;
+                        case 103:
+                            inventory.setItem(39, itemStack);
+                            break;
+                        case -106:
+                            inventory.setItem(40, itemStack);
+                            break;
+                        default:
+                            throw new RuntimeException("Player data file could not be loaded - invalid item slot in inventory");
                     }
                 }
             }
@@ -104,39 +109,47 @@ public final class InventoryFactory {
     public void saveInventoryOffline(SppPlayer target, Inventory inventory) {
         try {
             String filename = Bukkit.getWorldContainer() + File.separator + options.mainWorld + File.separator + "playerdata" + File.separator + target.getId() + ".dat";
-            NBTFile file = new NBTFile(new File(filename));
-            NBTCompoundList inventoryNbt = file.getCompoundList("Inventory");
+            NBTFileHandle file = NBT.getFileHandle(new File(filename));
+            ReadWriteNBTCompoundList inventoryNbt = file.getCompoundList("Inventory");
             inventoryNbt.clear();
 
             for (int i = 0; i < inventory.getContents().length; i++) {
                 ItemStack item = inventory.getContents()[i];
                 if (item == null || item.getType() == Material.AIR) continue;
 
-                NBTContainer nbtContainer = NBTItem.convertItemtoNBT(item);
+                ReadWriteNBT itemNbt = NBT.itemStackToNBT(item);
+                int convertedSlot;
+                
                 if (i <= 35) {
-                    nbtContainer.setByte("Slot", new Integer(i).byteValue());
+                    convertedSlot = i;
                 } else {
-                    if (i == 36) {
-                        nbtContainer.setByte("Slot", new Integer(100).byteValue());
-                    }
-                    if (i == 37) {
-                        nbtContainer.setByte("Slot", new Integer(101).byteValue());
-                    }
-                    if (i == 38) {
-                        nbtContainer.setByte("Slot", new Integer(102).byteValue());
-                    }
-                    if (i == 39) {
-                        nbtContainer.setByte("Slot", new Integer(103).byteValue());
-                    }
-                    if (i == 40) {
-                        nbtContainer.setByte("Slot", new Integer(-106).byteValue());
+                    switch (i) {
+                        case 36:
+                            convertedSlot = 100;
+                            break;
+                        case 37:
+                            convertedSlot = 101;
+                            break;
+                        case 38:
+                            convertedSlot = 102;
+                            break;
+                        case 39:
+                            convertedSlot = 103;
+                            break;
+                        case 40:
+                            convertedSlot = -106;
+                            break;
+                        default:
+                            throw new RuntimeException("Player data file could not be saved - inventory index out of range");
                     }
                 }
-                inventoryNbt.addCompound(nbtContainer);
+                
+                itemNbt.setByte("Slot", Integer.valueOf(convertedSlot).byteValue());
+                inventoryNbt.addCompound(itemNbt);
             }
             file.save();
         } catch (IOException e) {
-            throw new RuntimeException("Player data file could not be loaded", e);
+            throw new RuntimeException("Player data file could not be saved", e);
         }
     }
 }

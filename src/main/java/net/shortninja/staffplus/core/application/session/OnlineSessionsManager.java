@@ -54,6 +54,7 @@ public class OnlineSessionsManager implements SessionManager {
     }
 
     @Override
+    @Deprecated
     public IPlayerSession get(UUID uuid) {
         Player player = Bukkit.getPlayer(uuid);
         return player == null ? null : get(player);

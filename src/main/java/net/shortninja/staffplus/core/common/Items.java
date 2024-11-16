@@ -4,13 +4,15 @@ import net.shortninja.staffplus.core.common.utils.Strings;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.inventory.meta.SkullMeta;
-import org.bukkit.material.MaterialData;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -88,11 +90,11 @@ public final class Items {
             .build();
     }
 
-    public static ItemStack createSkull(String name) {
+    public static ItemStack createSkull(OfflinePlayer player) {
         ItemStack skull;
         skull = new ItemStack(Material.valueOf("PLAYER_HEAD"), 1);
         SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
-        skullMeta.setOwner(name);
+        skullMeta.setOwningPlayer(player);
         return skull;
     }
 
@@ -173,13 +175,14 @@ public final class Items {
             return this;
         }
 
-        public ItemStackBuilder setData(short data) {
-            itemStack.setDurability(data);
-            return this;
-        }
-
-        public ItemStackBuilder setData(MaterialData data) {
-            itemStack.setData(data);
+        public ItemStackBuilder setDurability(int durability) {
+            ItemMeta meta = itemStack.getItemMeta();
+            if (!(meta instanceof Damageable)) return this;
+            
+            Damageable damageableMeta = (Damageable) meta;
+            damageableMeta.setDamage(durability);
+            
+            itemStack.setItemMeta(damageableMeta);
             return this;
         }
 

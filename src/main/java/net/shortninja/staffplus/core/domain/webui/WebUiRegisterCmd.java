@@ -16,6 +16,8 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.io.UnsupportedEncodingException;
+import java.lang.RuntimeException;
 import java.net.URLEncoder;
 import java.util.Map;
 import java.util.Optional;
@@ -52,9 +54,14 @@ public class WebUiRegisterCmd extends AbstractCmd {
         String uuid = ((Player) sender).getUniqueId().toString();
         String applicationKey = webUiConfiguration.applicationKey;
         webUiRegistrationRepository.addRegistrationRequest(sender.getName(), ((Player) sender).getUniqueId(), authenticationKey, webUiConfiguration.role);
-
-        String registrationLink = String.format(webUiConfiguration.host + "/register?applicationKey=%s&&uuid=%s&&authenticationKey=%s&&serverName=%s", applicationKey, uuid, authenticationKey, URLEncoder.encode(serverName));
-        messages.send(sender, "&bRegistration link: &6" + registrationLink, messages.prefixGeneral);
+        
+        try {
+            String registrationLink = String.format(webUiConfiguration.host + "/register?applicationKey=%s&&uuid=%s&&authenticationKey=%s&&serverName=%s", applicationKey, uuid, authenticationKey, URLEncoder.encode(serverName, "UTF-8"));
+            messages.send(sender, "&bRegistration link: &6" + registrationLink, messages.prefixGeneral);
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException("UTF-8 encoding is not supported, something is terribly wrong with your installation", e);
+        }
+        
         return true;
     }
 

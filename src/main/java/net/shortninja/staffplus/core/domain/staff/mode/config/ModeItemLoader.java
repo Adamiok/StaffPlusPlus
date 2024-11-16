@@ -30,7 +30,7 @@ public abstract class ModeItemLoader<T extends ModeItemConfiguration> extends Ab
         boolean enabled = staffModeModulesConfig.getBoolean(prefix + "enabled", true);
         boolean movable = staffModeModulesConfig.getBoolean(prefix + "movable", true);
         Material type = stringToMaterial(sanitize(staffModeModulesConfig.getString(prefix + "item")));
-        short durability = getMaterialData(staffModeModulesConfig.getString(prefix + "item"));
+        int durability = getMaterialDurability(staffModeModulesConfig.getString(prefix + "item"));
         String name = staffModeModulesConfig.getString(prefix + "name");
         String commas = staffModeModulesConfig.getString(prefix + "lore");
         if (commas == null) {
@@ -38,7 +38,7 @@ public abstract class ModeItemLoader<T extends ModeItemConfiguration> extends Ab
         }
 
         List<String> lore = new ArrayList<>(Arrays.asList(commas.split("\\s*,\\s*")));
-        ItemStack item = Items.builder().setMaterial(type).setData(durability).setName(name).setLore(lore).build();
+        ItemStack item = Items.builder().setMaterial(type).setDurability(durability).setName(name).setLore(lore).build();
 
         modeItemConfiguration.setEnabled(enabled);
         modeItemConfiguration.setMovable(movable);
@@ -48,19 +48,19 @@ public abstract class ModeItemLoader<T extends ModeItemConfiguration> extends Ab
         return modeItemConfiguration;
     }
 
-    protected short getMaterialData(String string) {
-        short data = 0;
+    protected int getMaterialDurability(String string) {
+        int durability = 0;
 
         if (string.contains(":")) {
             String dataString = string.substring(string.lastIndexOf(':') + 1);
 
             if (JavaUtils.isInteger(dataString)) {
-                data = (short) Integer.parseInt(dataString);
+                durability = Integer.parseInt(dataString);
             } else
                 Bukkit.getLogger().severe("Invalid material data '" + dataString + "' from '" + string + "'!");
         }
 
-        return data;
+        return durability;
     }
 
     protected abstract String getModuleName();

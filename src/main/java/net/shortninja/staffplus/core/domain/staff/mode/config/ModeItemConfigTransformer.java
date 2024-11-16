@@ -5,6 +5,7 @@ import be.garagepoort.mcioc.configuration.yaml.configuration.ConfigurationSectio
 import net.shortninja.staffplus.core.common.Items;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 
@@ -13,7 +14,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import static net.shortninja.staffplus.core.application.config.Options.getMaterialData;
+import static net.shortninja.staffplus.core.application.config.Options.getMaterialDurability;
 import static net.shortninja.staffplus.core.application.config.Options.sanitizeMaterial;
 import static net.shortninja.staffplus.core.application.config.Options.stringToMaterial;
 
@@ -26,16 +27,16 @@ public class ModeItemConfigTransformer implements IConfigTransformer<ItemStack, 
             LinkedHashMap<String, String> map = (LinkedHashMap<String, String>) configurationSection;
 
             Material type = stringToMaterial(sanitizeMaterial(map.get("type")));
-            short durability = getMaterialData(map.get("type"));
+            int durability = getMaterialDurability(map.get("type"));
             String name = map.get("name");
             String commas = map.getOrDefault("lore", "");
             List<String> lore = new ArrayList<>(Arrays.asList(commas.split("\\s*,\\s*")));
-            Items.ItemStackBuilder itemStackBuilder = Items.builder().setMaterial(type).setData(durability).setName(name).setLore(lore);
+            Items.ItemStackBuilder itemStackBuilder = Items.builder().setMaterial(type).setDurability(durability).setName(name).setLore(lore);
 
             if (!map.getOrDefault("enchantment", "").equalsIgnoreCase("")) {
                 String enchantInfo = map.get("enchantment");
                 String[] enchantInfoParts = enchantInfo.split(":");
-                Enchantment enchantment = Enchantment.getByKey(NamespacedKey.minecraft(enchantInfoParts[0]));
+                Enchantment enchantment = Registry.ENCHANTMENT.getOrThrow(NamespacedKey.minecraft(enchantInfoParts[0]));
                 if (enchantment == null) {
                     enchantment = Enchantment.UNBREAKING;
                 }
@@ -48,16 +49,16 @@ public class ModeItemConfigTransformer implements IConfigTransformer<ItemStack, 
             ConfigurationSection map = (ConfigurationSection) configurationSection;
 
             Material type = stringToMaterial(sanitizeMaterial(map.getString("type")));
-            short durability = getMaterialData(map.getString("type"));
+            int durability = getMaterialDurability(map.getString("type"));
             String name = map.getString("name");
             String commas = map.getString("lore", "");
             List<String> lore = new ArrayList<>(Arrays.asList(commas.split("\\s*,\\s*")));
-            Items.ItemStackBuilder itemStackBuilder = Items.builder().setMaterial(type).setData(durability).setName(name).setLore(lore);
+            Items.ItemStackBuilder itemStackBuilder = Items.builder().setMaterial(type).setDurability(durability).setName(name).setLore(lore);
 
             if (!map.getString("enchantment", "").equalsIgnoreCase("")) {
                 String enchantInfo = map.getString("enchantment");
                 String[] enchantInfoParts = enchantInfo.split(":");
-                Enchantment enchantment = Enchantment.getByKey(NamespacedKey.minecraft(enchantInfoParts[0]));
+                Enchantment enchantment = Registry.ENCHANTMENT.getOrThrow(NamespacedKey.minecraft(enchantInfoParts[0]));
                 if (enchantment == null) {
                     enchantment = Enchantment.UNBREAKING;
                 }

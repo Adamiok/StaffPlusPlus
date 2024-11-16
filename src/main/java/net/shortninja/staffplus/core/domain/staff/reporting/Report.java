@@ -179,6 +179,7 @@ public class Report implements IReport, Infraction, Evidence {
     }
 
     @Override
+    @Deprecated
     public Optional<Location> getLocation() {
         return Optional.ofNullable(location);
     }

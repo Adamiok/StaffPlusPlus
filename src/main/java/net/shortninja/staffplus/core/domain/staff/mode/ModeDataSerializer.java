@@ -5,8 +5,10 @@ import net.shortninja.staffplus.core.common.BukkitInventorySerialization;
 import net.shortninja.staffplusplus.vanish.VanishType;
 import org.bukkit.GameMode;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.NamespacedKey;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.Registry;
 
 import java.io.File;
 import java.io.IOException;
@@ -66,7 +68,7 @@ public class ModeDataSerializer {
             List<PotionEffect> potionEffects = potionEffectConfig.stream()
                 .map(pConfig -> {
                     String[] split = pConfig.split(";");
-                    return new PotionEffect(PotionEffectType.getByName(split[0]),
+                    return new PotionEffect(Registry.EFFECT.getOrThrow(new NamespacedKey(split[0], NamespacedKey.MINECRAFT)),
                         parseInt(split[1]),
                         parseInt(split[2]),
                         parseBoolean(split[3]),
@@ -90,7 +92,7 @@ public class ModeDataSerializer {
 
     public synchronized void save(ModeData modeData) {
         List<String> parsedPotionEffects = modeData.getPotionEffects().stream()
-            .map(p -> p.getType().getName() + ";" + p.getDuration() + ";" + p.getAmplifier() + ";" + p.isAmbient() + ";" + p.hasParticles())
+            .map(p -> p.getType().getKey().getNamespace() + ":" + p.getType().getKey().getKey() + ";" + p.getDuration() + ";" + p.getAmplifier() + ";" + p.isAmbient() + ";" + p.hasParticles())
             .collect(Collectors.toList());
 
         UUID uuid = modeData.getUuid();

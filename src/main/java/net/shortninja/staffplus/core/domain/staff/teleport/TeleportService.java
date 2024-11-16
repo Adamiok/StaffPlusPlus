@@ -1,8 +1,9 @@
 package net.shortninja.staffplus.core.domain.staff.teleport;
 
 import be.garagepoort.mcioc.IocBean;
-import de.tr7zw.changeme.nbtapi.NBTFile;
-import de.tr7zw.changeme.nbtapi.NBTList;
+import de.tr7zw.changeme.nbtapi.NBT;
+import de.tr7zw.changeme.nbtapi.iface.NBTFileHandle;
+import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBTList;
 import net.shortninja.staffplus.core.application.config.Options;
 import net.shortninja.staffplus.core.application.config.messages.Messages;
 import net.shortninja.staffplus.core.common.exceptions.BusinessException;
@@ -84,10 +85,10 @@ public class TeleportService {
     private Location getLocationOfflinePlayer(SppPlayer sppPlayer) {
         try {
             String filename = Bukkit.getWorldContainer() + File.separator + options.mainWorld + File.separator + "playerdata" + File.separator + sppPlayer.getId() + ".dat";
-            NBTFile file = new NBTFile(new File(filename));
+            NBTFileHandle file = NBT.getFileHandle(new File(filename));
             long uuidLeast = file.getLong("WorldUUIDLeast");
             long uuidMost = file.getLong("WorldUUIDMost");
-            NBTList<Double> positions = file.getDoubleList("Pos");
+            ReadWriteNBTList<Double> positions = file.getDoubleList("Pos");
 
             World world = Bukkit.getWorlds().stream()
                 .filter(w -> w.getUID().getLeastSignificantBits() == uuidLeast && w.getUID().getMostSignificantBits() == uuidMost).findFirst()

@@ -15,7 +15,8 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.inventory.AnvilInventory;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.view.AnvilView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
@@ -50,28 +51,29 @@ public class BlacklistAnvilListener implements Listener {
         }
 
         Player player = (Player) entity;
-        AnvilInventory anvilInventory = (AnvilInventory) event.getInventory();
-        ItemStack item = anvilInventory.getItem(0);
-        ItemStack newItem = anvilInventory.getItem(2);
+        Inventory inventory = event.getInventory();
+        AnvilView anvilView = (AnvilView) event.getView();
+        ItemStack item = inventory.getItem(0);
+        ItemStack newItem = inventory.getItem(2);
 
-        if (item != null && newItem != null && nameIsChanged(anvilInventory, item)) {
-            String nameCensored = blacklistService.censorMessage(anvilInventory.getRenameText());
-            if(nameCensored.equals(anvilInventory.getRenameText())) {
+        if (item != null && newItem != null && nameIsChanged(anvilView, item)) {
+            String nameCensored = blacklistService.censorMessage(anvilView.getRenameText());
+            if (nameCensored.equals(anvilView.getRenameText())) {
                 return;
             }
             ItemMeta resultMeta = newItem.getItemMeta();
             resultMeta.setDisplayName(nameCensored);
             newItem.setItemMeta(resultMeta);
-            sendEvent(new BlacklistCensoredEvent(options.serverName, player, nameCensored, anvilInventory.getRenameText(), BlacklistType.ANVIL));
+            sendEvent(new BlacklistCensoredEvent(options.serverName, player, nameCensored, anvilView.getRenameText(), BlacklistType.ANVIL));
         }
     }
 
-    private boolean nameIsChanged(AnvilInventory anvilInventory, ItemStack item) {
-        if(StringUtils.isEmpty(anvilInventory.getRenameText())) {
+    private boolean nameIsChanged(AnvilView anvilView, ItemStack item) {
+        if(StringUtils.isEmpty(anvilView.getRenameText())) {
             return false;
         }
         String oldName = getOldName(item);
-        return !anvilInventory.getRenameText().equals(oldName);
+        return !anvilView.getRenameText().equals(oldName);
     }
 
     @NotNull

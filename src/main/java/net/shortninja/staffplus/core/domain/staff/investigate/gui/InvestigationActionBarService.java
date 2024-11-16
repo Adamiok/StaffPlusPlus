@@ -24,7 +24,7 @@ public class InvestigationActionBarService {
                 .map(s -> playerManager.getOnlinePlayer(s.getUuid()))
                 .flatMap(optional -> optional.map(Stream::of).orElseGet(Stream::empty))
                 .map(SppPlayer::getPlayer)
-                .forEach(p -> p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(messages.colorize(messages.underInvestigationTitle))));
+                .forEach(p -> p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacy(messages.colorize(messages.underInvestigationTitle))));
         }, 20L, 20L);
     }
 }

@@ -24,6 +24,6 @@ public class VanishActionBarTask {
                 .map(s -> playerManager.getOnlinePlayer(s.getUuid()))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
-                .forEach(p -> p.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(messages.colorize(messages.vanishEnabled)))), 20L, 20L);
+                .forEach(p -> p.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacy(messages.colorize(messages.vanishEnabled)))), 20L, 20L);
     }
 }
