@@ -36,7 +36,7 @@ public class ModeItemConfigTransformer implements IConfigTransformer<ItemStack, 
             if (!map.getOrDefault("enchantment", "").equalsIgnoreCase("")) {
                 String enchantInfo = map.get("enchantment");
                 String[] enchantInfoParts = enchantInfo.split(":");
-                Enchantment enchantment = Registry.ENCHANTMENT.getOrThrow(NamespacedKey.minecraft(enchantInfoParts[0]));
+                Enchantment enchantment = Registry.ENCHANTMENT.getOrThrow(NamespacedKey.fromString(enchantInfoParts[0]));
                 if (enchantment == null) {
                     enchantment = Enchantment.UNBREAKING;
                 }
@@ -58,7 +58,7 @@ public class ModeItemConfigTransformer implements IConfigTransformer<ItemStack, 
             if (!map.getString("enchantment", "").equalsIgnoreCase("")) {
                 String enchantInfo = map.getString("enchantment");
                 String[] enchantInfoParts = enchantInfo.split(":");
-                Enchantment enchantment = Registry.ENCHANTMENT.getOrThrow(NamespacedKey.minecraft(enchantInfoParts[0]));
+                Enchantment enchantment = Registry.ENCHANTMENT.getOrThrow(NamespacedKey.fromString(enchantInfoParts[0]));
                 if (enchantment == null) {
                     enchantment = Enchantment.UNBREAKING;
                 }

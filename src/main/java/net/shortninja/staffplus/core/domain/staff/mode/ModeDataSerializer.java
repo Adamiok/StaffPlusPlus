@@ -68,7 +68,7 @@ public class ModeDataSerializer {
             List<PotionEffect> potionEffects = potionEffectConfig.stream()
                 .map(pConfig -> {
                     String[] split = pConfig.split(";");
-                    return new PotionEffect(Registry.EFFECT.getOrThrow(new NamespacedKey(split[0], NamespacedKey.MINECRAFT)),
+                    return new PotionEffect(Registry.EFFECT.getOrThrow(NamespacedKey.fromString(split[0])),
                         parseInt(split[1]),
                         parseInt(split[2]),
                         parseBoolean(split[3]),
